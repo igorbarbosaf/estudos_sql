@@ -2,7 +2,7 @@ create table cliente (                                 -- cria uma tabela chamad
 	idcliente integer not null,                        -- número inteiro, obrigatório (não pode ser vazio)
 	nome varchar(50) not null,                         -- texto até 50 caracteres, obrigatório
 	cpf char(11),                                      -- texto fixo de exatamente 11 dígitos, opcional
-	rg varchar(15),                                    -- texto variável at´´e 15 caracteres, opcional
+	rg varchar(15),                                    -- texto variável até 15 caracteres, opcional
 	data_nascimento date,                              -- data no formato AAAA-MM-DD, opcional
 	genero char(1),                                    -- um único caractere, ex: M ou F, opcional
 	profissao varchar(30),                             -- texto até 30 caracteres,  opcional
@@ -27,4 +27,4 @@ insert into cliente (idcliente, nome ,cpf, rg, data_nascimento, genero, profissa
 values (2 , 'Geraldo', '12343299929', '56565', '1987-01-04', 'M', 'Engenheiro', 'Brasileira', 'Rua das Limas', '200', 'Ap', 'Centro', 'Poro União', 'SC');
 
 insert into cliente (idcliente, nome ,cpf, rg, data_nascimento, genero, profissao, nacionalidade, logradouro, numero, complemento, bairro, municipio, uf)
-values (1 , 'Manoel', '88828383821', '32323', '2001-01-30', 'M', 'Estudante', 'Brasileira', 'Rua Joaquim Nabuco', '23', 'Casa', 'Cidade Nova', 'POrto União', 'SC');
+values (3 , 'Carlos', '87732323227', '55463', '1967-09-10', 'M', 'Pedreiro', 'Brasileira', 'Rua das Laranjeiras', '300', 'Apart', 'Cto.', 'Canoinhas', 'SC');
