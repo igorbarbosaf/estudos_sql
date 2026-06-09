@@ -139,3 +139,164 @@ select nome                              -- busca a coluna nome
 from cliente                             -- da tabela cliente
 order by nome desc;                      -- ordena em ordem decrescente Z → A
 
+-- TABELAS DE DOMÍNIO — valores padronizados usados como referência
+
+create table profissao (
+    idprofissao integer     not null,
+    nome        varchar(30) not null,
+    constraint pk_prf_idprofissao primary key (idprofissao),
+    constraint un_prf_nome        unique (nome)  -- impede profissão duplicada
+);
+
+insert into profissao (idprofissao, nome) values (1, 'Estudante');
+insert into profissao (idprofissao, nome) values (2, 'Engenheiro');
+insert into profissao (idprofissao, nome) values (3, 'Pedreiro');
+insert into profissao (idprofissao, nome) values (4, 'Jornalista');
+insert into profissao (idprofissao, nome) values (5, 'Professor');
+
+select * from profissao; -- confere se os dados foram inseridos corretamente
+
+
+create table nacionalidade (
+    idnacionalidade integer     not null,
+    nome            varchar(30) not null,
+    constraint pk_ncn_idnacionalidade primary key (idnacionalidade),
+    constraint un_ncn_nome            unique (nome)
+);
+
+-- ! ANTES DE FAZER O DROP: rodar esse select para anotar
+--   qual texto estava em cada cliente e qual ID vai corresponder
+--   Ex: 'Brasileira' → id 1, 'Italiana' → id 2, etc.
+select nacionalidade from cliente;
+
+insert into nacionalidade (idnacionalidade, nome) values (1, 'Brasileira');
+insert into nacionalidade (idnacionalidade, nome) values (2, 'Italiana');
+insert into nacionalidade (idnacionalidade, nome) values (3, 'Norte-americana');
+insert into nacionalidade (idnacionalidade, nome) values (4, 'Alemã');
+
+delete from nacionalidade; -- apagou tudo para reinserir corretamente
+
+select * from nacionalidade;
+
+
+create table complemento (
+    idcomplemento integer     not null,
+    nome          varchar(30) not null,
+    constraint pk_cpl_idcomplemento primary key (idcomplemento),
+    constraint un_cpl_nome          unique (nome)
+);
+
+insert into complemento (idcomplemento, nome) values (1, 'Casa');
+insert into complemento (idcomplemento, nome) values (2, 'Apartamento');
+
+select * from complemento;
+
+
+create table bairro (
+    idbairro integer     not null,
+    nome     varchar(30) not null,
+    constraint pk_brr_idbairro primary key (idbairro),
+    constraint un_brr_nome     unique (nome)
+);
+
+insert into bairro (idbairro, nome) values (1, 'Cidade Nova');
+insert into bairro (idbairro, nome) values (2, 'Centro');
+insert into bairro (idbairro, nome) values (3, 'São Pedro');
+insert into bairro (idbairro, nome) values (4, 'Santa Rosa');
+
+select * from bairro;
+
+-- REESTRUTURANDO A TABELA CLIENTE
+-- Substituindo colunas de texto por colunas de ID (foreign key)
+
+-- !! REGRA IMPORTANTE — ANTES DE FAZER O DROP DE QUALQUER COLUNA:
+--    1. Rodar: select * from cliente;
+--    2. Anotar qual texto cada cliente tem nessa coluna
+--    3. Mapear texto → id da tabela de domínio
+--    4. SÓ DEPOIS fazer o drop e os updates com os IDs corretos
+--    Exemplo: Carlos tem profissao='Estudante' → idprofissao = 1
+
+select * from cliente; -- PASSO 1: ver os dados antes de qualquer alteração
+
+
+-- ---- PROFISSÃO ----
+alter table cliente rename column profissao to idprofissao; -- renomeia a coluna
+
+alter table cliente alter column idprofissao type integer;
+-- ^ deu erro: coluna ainda tem texto, não dá converter direto
+-- solução: drop e recriar como integer vazia
+
+select * from cliente;
+-- Mapeamento anotado ANTES do drop:
+-- Estudante  → id 1 → clientes: 1, 9, 10, 12, 15, 17
+-- Engenheiro → id 2 → cliente:  2
+-- Pedreiro   → id 3 → cliente:  3
+-- Jornalista → id 4 → clientes: 4, 5
+-- Professor  → id 5 → clientes: 6, 7, 8, 13
+-- Null              → clientes: 11, 14
+
+alter table cliente drop idprofissao;          -- remove a coluna com texto
+alter table cliente add  idprofissao integer;  -- recria como integer (vazia)
+
+alter table cliente add constraint fk_cln_idprofissao
+    foreign key (idprofissao) references profissao (idprofissao);
+-- ^ liga cliente.idprofissao com profissao.idprofissao
+--   o banco vai bloquear qualquer id que não exista em profissao
+
+update cliente set idprofissao = 1 where idcliente in (1, 9, 10, 12, 15, 17); -- Estudante
+update cliente set idprofissao = 2 where idcliente = 2;                       -- Engenheiro
+update cliente set idprofissao = 3 where idcliente = 3;                       -- Pedreiro
+update cliente set idprofissao = 4 where idcliente in (4, 5);               -- Jornalista
+update cliente set idprofissao = 5 where idcliente in (6, 7, 8, 13);        -- Professor
+-- clientes 11 e 14 ficam null (não tinham profissão)
+
+
+-- ---- NACIONALIDADE ----
+select * from cliente; -- confere antes do drop
+
+alter table cliente drop nacionalidade;          -- remove coluna de texto
+alter table cliente add  idnacionalidade integer; -- recria como integer
+
+alter table cliente add constraint fk_cln_idnacionalidade
+    foreign key (idnacionalidade) references nacionalidade (idnacionalidade);
+
+select * from nacionalidade; -- confirma os IDs antes de fazer os updates
+
+update cliente set idnacionalidade = 1 where idcliente in (1, 2, 3, 4, 6, 10, 11, 14); -- Brasileira
+update cliente set idnacionalidade = 2 where idcliente in (5, 7);                      -- Italiana
+update cliente set idnacionalidade = 3 where idcliente = 8;                            -- Norte-americana
+update cliente set idnacionalidade = 4 where idcliente in (9, 13);                    -- Alemã
+
+
+-- ---- COMPLEMENTO ----
+select * from cliente; -- confere antes do drop
+
+alter table cliente drop complemento;          -- remove coluna de texto
+alter table cliente add  idcomplemento integer; -- recria como integer
+
+alter table cliente add constraint fk_cln_idcomplemento
+    foreign key (idcomplemento) references complemento (idcomplemento);
+
+select * from complemento; -- confirma os IDs antes de fazer os updates
+
+update cliente set idcomplemento = 1 where idcliente in (1, 4, 9, 13); -- Casa
+update cliente set idcomplemento = 2 where idcliente in (2, 3, 7);     -- Apartamento
+
+
+-- ---- BAIRRO ----
+select * from cliente; -- confere antes do drop
+
+alter table cliente drop bairro;          -- remove coluna de texto
+alter table cliente add  idbairro integer; -- recria como integer
+
+alter table cliente add constraint fk_cln_idbairro
+    foreign key (idbairro) references bairro (idbairro);
+
+select * from bairro; -- confirma os IDs antes de fazer os updates
+
+update cliente set idbairro = 1 where idcliente in (1, 12, 13); -- Cidade Nova
+update cliente set idbairro = 2 where idcliente in (2, 3, 6, 8, 9); -- Centro
+update cliente set idbairro = 3 where idcliente in (4, 5);       -- São Pedro
+update cliente set idbairro = 4 where idcliente = 7;              -- Santa Rosa
+
+select * from cliente; -- resultado final com todas as FKs aplicadas
