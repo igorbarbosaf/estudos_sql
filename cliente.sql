@@ -142,10 +142,10 @@ order by nome desc;                      -- ordena em ordem decrescente Z → A
 -- TABELAS DE DOMÍNIO — valores padronizados usados como referência
 
 create table profissao (
-    idprofissao integer     not null,
-    nome        varchar(30) not null,
+    idprofissao integer not null,
+    nome varchar(30) not null,
     constraint pk_prf_idprofissao primary key (idprofissao),
-    constraint un_prf_nome        unique (nome)  -- impede profissão duplicada
+    constraint un_prf_nome unique (nome)  -- unique -> impede nome de profissão duplicada
 );
 
 insert into profissao (idprofissao, nome) values (1, 'Estudante');
@@ -158,10 +158,10 @@ select * from profissao; -- confere se os dados foram inseridos corretamente
 
 
 create table nacionalidade (
-    idnacionalidade integer     not null,
-    nome            varchar(30) not null,
+    idnacionalidade integer not null,
+    nome varchar(30) not null,
     constraint pk_ncn_idnacionalidade primary key (idnacionalidade),
-    constraint un_ncn_nome            unique (nome)
+    constraint un_ncn_nome unique (nome)
 );
 
 -- ! ANTES DE FAZER O DROP: rodar esse select para anotar
@@ -180,10 +180,10 @@ select * from nacionalidade;
 
 
 create table complemento (
-    idcomplemento integer     not null,
-    nome          varchar(30) not null,
+    idcomplemento integer not null,
+    nome varchar(30) not null,
     constraint pk_cpl_idcomplemento primary key (idcomplemento),
-    constraint un_cpl_nome          unique (nome)
+    constraint un_cpl_nome unique (nome)
 );
 
 insert into complemento (idcomplemento, nome) values (1, 'Casa');
@@ -193,10 +193,10 @@ select * from complemento;
 
 
 create table bairro (
-    idbairro integer     not null,
-    nome     varchar(30) not null,
+    idbairro integer not null,
+    nome varchar(30) not null,
     constraint pk_brr_idbairro primary key (idbairro),
-    constraint un_brr_nome     unique (nome)
+    constraint un_brr_nome unique (nome)
 );
 
 insert into bairro (idbairro, nome) values (1, 'Cidade Nova');
@@ -210,11 +210,11 @@ select * from bairro;
 -- Substituindo colunas de texto por colunas de ID (foreign key)
 
 -- !! REGRA IMPORTANTE — ANTES DE FAZER O DROP DE QUALQUER COLUNA:
---    1. Rodar: select * from cliente;
---    2. Anotar qual texto cada cliente tem nessa coluna
---    3. Mapear texto → id da tabela de domínio
---    4. SÓ DEPOIS fazer o drop e os updates com os IDs corretos
---    Exemplo: Carlos tem profissao='Estudante' → idprofissao = 1
+-- 1. Rodar: select * from cliente;
+-- 2. Anotar qual texto cada cliente tem nessa coluna
+-- 3. Mapear texto → id da tabela de domínio
+-- 4. SÓ DEPOIS fazer o drop e os updates com os IDs corretos
+-- Exemplo: Carlos tem profissao='Estudante' → idprofissao = 1
 
 select * from cliente; -- PASSO 1: ver os dados antes de qualquer alteração
 
@@ -227,21 +227,20 @@ alter table cliente alter column idprofissao type integer;
 -- solução: drop e recriar como integer vazia
 
 select * from cliente;
--- Mapeamento anotado ANTES do drop:
--- Estudante  → id 1 → clientes: 1, 9, 10, 12, 15, 17
--- Engenheiro → id 2 → cliente:  2
--- Pedreiro   → id 3 → cliente:  3
--- Jornalista → id 4 → clientes: 4, 5
--- Professor  → id 5 → clientes: 6, 7, 8, 13
--- Null              → clientes: 11, 14
+-- !! Mapeamento anotado ANTES do drop:
+-- Estudante  -> id 1 -> clientes: 1, 9, 10, 12, 15, 17
+-- Engenheiro -> id 2 -> cliente:  2
+-- Pedreiro -> id 3 -> cliente:  3
+-- Jornalista -> id 4 -> clientes: 4, 5
+-- Professor -> id 5 -> clientes: 6, 7, 8, 13
+-- Null -> clientes: 11, 14
 
 alter table cliente drop idprofissao;          -- remove a coluna com texto
 alter table cliente add  idprofissao integer;  -- recria como integer (vazia)
 
-alter table cliente add constraint fk_cln_idprofissao
-    foreign key (idprofissao) references profissao (idprofissao);
+alter table cliente add constraint fk_cln_idprofissao foreign key (idprofissao) references profissao (idprofissao);
 -- ^ liga cliente.idprofissao com profissao.idprofissao
---   o banco vai bloquear qualquer id que não exista em profissao
+-- o banco vai bloquear qualquer id que não exista em profissao
 
 update cliente set idprofissao = 1 where idcliente in (1, 9, 10, 12, 15, 17); -- Estudante
 update cliente set idprofissao = 2 where idcliente = 2;                       -- Engenheiro
@@ -257,8 +256,7 @@ select * from cliente; -- confere antes do drop
 alter table cliente drop nacionalidade;          -- remove coluna de texto
 alter table cliente add  idnacionalidade integer; -- recria como integer
 
-alter table cliente add constraint fk_cln_idnacionalidade
-    foreign key (idnacionalidade) references nacionalidade (idnacionalidade);
+alter table cliente add constraint fk_cln_idnacionalidade foreign key (idnacionalidade) references nacionalidade (idnacionalidade);
 
 select * from nacionalidade; -- confirma os IDs antes de fazer os updates
 
@@ -274,8 +272,7 @@ select * from cliente; -- confere antes do drop
 alter table cliente drop complemento;          -- remove coluna de texto
 alter table cliente add  idcomplemento integer; -- recria como integer
 
-alter table cliente add constraint fk_cln_idcomplemento
-    foreign key (idcomplemento) references complemento (idcomplemento);
+alter table cliente add constraint fk_cln_idcomplemento foreign key (idcomplemento) references complemento (idcomplemento);
 
 select * from complemento; -- confirma os IDs antes de fazer os updates
 
@@ -286,17 +283,103 @@ update cliente set idcomplemento = 2 where idcliente in (2, 3, 7);     -- Aparta
 -- ---- BAIRRO ----
 select * from cliente; -- confere antes do drop
 
-alter table cliente drop bairro;          -- remove coluna de texto
+alter table cliente drop bairro;  -- remove coluna de texto
 alter table cliente add  idbairro integer; -- recria como integer
 
-alter table cliente add constraint fk_cln_idbairro
-    foreign key (idbairro) references bairro (idbairro);
+alter table cliente add constraint fk_cln_idbairro foreign key (idbairro) references bairro (idbairro);
 
 select * from bairro; -- confirma os IDs antes de fazer os updates
 
 update cliente set idbairro = 1 where idcliente in (1, 12, 13); -- Cidade Nova
 update cliente set idbairro = 2 where idcliente in (2, 3, 6, 8, 9); -- Centro
-update cliente set idbairro = 3 where idcliente in (4, 5);       -- São Pedro
-update cliente set idbairro = 4 where idcliente = 7;              -- Santa Rosa
+update cliente set idbairro = 3 where idcliente in (4, 5);  -- São Pedro
+update cliente set idbairro = 4 where idcliente = 7;  -- Santa Rosa
 
 select * from cliente; -- resultado final com todas as FKs aplicadas
+
+-- TABELA UF — estados do Brasil
+-- Tem 3 constraints: pk (id único), unique no nome e unique na sigla
+
+create table uf (
+    iduf  integer not null,
+    nome  varchar(30) not null,
+    sigla char(2) not null,        -- char(2) pois sigla é sempre 2 letras fixas
+
+    constraint pk_ufd_iduf primary key (iduf),   -- id único da linha
+    constraint un_ufd_nome unique (nome),         -- não permite estado com nome repetido
+    constraint un_ufd_sigla unique (sigla)         -- não permite sigla repetida (ex: dois 'SC')
+);
+
+insert into uf (iduf, nome, sigla) values (1, 'Santa Catarina',    'SC');
+insert into uf (iduf, nome, sigla) values (2, 'Paraná',            'PR');
+insert into uf (iduf, nome, sigla) values (3, 'São Paulo',         'SP');
+insert into uf (iduf, nome, sigla) values (4, 'Minas Gerais',      'MG');
+insert into uf (iduf, nome, sigla) values (5, 'Rio Grande do Sul', 'RS');
+insert into uf (iduf, nome, sigla) values (6, 'Rio de Janeiro',    'RJ');
+
+select * from uf; -- confere os IDs antes de usar no municipio
+
+
+-- TABELA MUNICIPIO — já nasce com foreign key para UF
+-- Isso significa: não dá inserir município com iduf inexistente
+
+create table municipio (
+    idmunicipio integer not null,
+    nome varchar(30) not null,
+    iduf integer not null,   -- obrigatório: todo município pertence a um estado
+
+    constraint pk_mnc_idmunicipio primary key (idmunicipio),
+    constraint un_mnc_nome unique (nome),
+    constraint fk_mnc_iduf foreign key (iduf) references uf (iduf)
+    -- ^ FK direto no create table (não precisa de alter table depois)
+    --   municipio.iduf aponta para uf.iduf
+);
+
+-- Cada município recebe o iduf do estado correspondente:
+insert into municipio (idmunicipio, nome, iduf) values (1, 'Porto União',     1); -- SC
+insert into municipio (idmunicipio, nome, iduf) values (2, 'Canoinhas',       1); -- SC
+insert into municipio (idmunicipio, nome, iduf) values (3, 'Porto Vitória',   2); -- PR
+insert into municipio (idmunicipio, nome, iduf) values (4, 'General Carneiro',2); -- PR
+insert into municipio (idmunicipio, nome, iduf) values (5, 'São Paulo',       3); -- SP
+insert into municipio (idmunicipio, nome, iduf) values (6, 'Rio de Janeiro',  6); -- RJ
+insert into municipio (idmunicipio, nome, iduf) values (7, 'Uberlândia',      4); -- MG
+insert into municipio (idmunicipio, nome, iduf) values (8, 'Porto Alegre',    5); -- RS
+insert into municipio (idmunicipio, nome, iduf) values (9, 'União da Vitória',2); -- PR
+
+select * from municipio; -- confere os IDs antes de usar nos updates do cliente
+
+-- REESTRUTURANDO CLIENTE
+-- Regra: select * from cliente ANTES de dropar para anotar os dados
+-- Aqui municipio já carrega o estado — não precisa mais da coluna uf
+
+select * from cliente; -- OBRIGATÓRIO: anotar municipio e uf de cada cliente antes do drop
+
+alter table cliente drop municipio; -- remove coluna de texto municipio
+alter table cliente drop uf;        -- remove coluna de texto uf (o estado agora vem pelo município)
+
+alter table cliente add idmunicipio integer; -- recria como integer vazia
+
+alter table cliente add constraint fk_cliente_idmunicipio foreign key (idmunicipio) references municipio (idmunicipio);
+-- ^ cliente.idmunicipio aponta para municipio.idmunicipio
+--   pelo município já se sabe o estado — por isso não precisa mais da coluna uf
+
+-- Mapeamento usado nos updates abaixo:
+-- id 1 = Porto União (SC)   -> clientes: 1, 2, 10, 11
+-- id 2 = Canoinhas (SC)     -> clientes: 3, 12
+-- id 3 = Porto Vitória (PR) -> cliente:  4
+-- id 4 = General Carneiro   -> cliente:  5
+-- id 5 = São Paulo (SP)     -> clientes: 6, 13
+-- id 6 = Rio de Janeiro(RJ) -> cliente:  7
+-- id 7 = Uberlândia (MG)    -> cliente:  8
+-- id 8 = Porto Alegre (RS)  -> cliente:  9
+-- id 9 = União da Vitória   -> clientes: 14, 15
+
+update cliente set idmunicipio = 1 where idcliente in (1, 2, 10, 11); -- Porto União
+update cliente set idmunicipio = 2 where idcliente in (3, 12);       -- Canoinhas
+update cliente set idmunicipio = 3 where idcliente = 4;              -- Porto Vitória
+update cliente set idmunicipio = 4 where idcliente = 5;              -- General Carneiro
+update cliente set idmunicipio = 5 where idcliente in (6, 13);      -- São Paulo
+update cliente set idmunicipio = 6 where idcliente = 7;              -- Rio de Janeiro
+update cliente set idmunicipio = 7 where idcliente = 8;              -- Uberlândia
+update cliente set idmunicipio = 8 where idcliente = 9;              -- Porto Alegre
+update cliente set idmunicipio = 9 where idcliente in (14, 15);     -- União da Vitória
