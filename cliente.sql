@@ -227,7 +227,7 @@ alter table cliente alter column idprofissao type integer;
 -- solução: drop e recriar como integer vazia
 
 select * from cliente;
--- !! Mapeamento anotado ANTES do drop:
+-- !! Mapeamento e anotado ANTES do drop:
 -- Estudante  -> id 1 -> clientes: 1, 9, 10, 12, 15, 17
 -- Engenheiro -> id 2 -> cliente:  2
 -- Pedreiro -> id 3 -> cliente:  3
@@ -383,3 +383,18 @@ update cliente set idmunicipio = 6 where idcliente = 7;              -- Rio de J
 update cliente set idmunicipio = 7 where idcliente = 8;              -- Uberlândia
 update cliente set idmunicipio = 8 where idcliente = 9;              -- Porto Alegre
 update cliente set idmunicipio = 9 where idcliente in (14, 15);     -- União da Vitória
+
+-- Tabela Pedido
+create table pedido (
+	idpedido integer not null,
+	idcliente integer not null,
+	idtransportadora integer,
+	idvendedor integer not null,
+	data_pedido date not null,
+	valor decimal(10,2) not null,
+
+	constraint pk_pdd_idpedido primary key (idpedido),
+	constraint fk_pdd_idcliente foreign key (idcliente) references cliente (idcliente),
+	constraint fk_pdd_idtransportadora foreign key (idtransportadora) references transportadora (idtransportadora),
+	constraint fk_pdd_idvendedor foreign key (idvendedor) references vendedor (idvendedor)
+);
