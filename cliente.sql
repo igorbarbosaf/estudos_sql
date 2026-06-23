@@ -481,3 +481,4 @@ insert into pedido_produto (idpedido, idproduto, quantidade, valor_unitario) val
 insert into pedido_produto (idpedido, idproduto, quantidade, valor_unitario) values(15, 3, 1, 200);
 
 select * from pedido_produto;
+
