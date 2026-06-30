@@ -71,6 +71,7 @@ select * from transportadora;
 select * from transportadora where logradouro is not null;
 
 --22. Os itens do pedido 01.
-select * from pedido_produto; where idpedido = 1;
+select * from pedido_produto where idpedido = 1;
+
 --23. Os itens do pedido 06 ou do pedido 10.
 select * from pedido_produto where idpedido = 6 or idpedido = 10;

@@ -481,4 +481,24 @@ insert into pedido_produto (idpedido, idproduto, quantidade, valor_unitario) val
 insert into pedido_produto (idpedido, idproduto, quantidade, valor_unitario) values(15, 3, 1, 200);
 
 select * from pedido_produto;
+---------------------------------------------------------------------------------------------------------------
 
+select * from transportadora; -- confere os dados antes de usar as funções
+
+select count(logradouro) from transportadora;     -- conta só os logradouros preenchidos (ignora null)
+select count(idtransportadora) from transportadora; -- conta todas as transportadoras (pk nunca é null)
+select count(*) from municipio;                   -- conta todas as linhas da tabela, incluindo nulls
+
+select count(idmunicipio) from municipio where iduf = 2; -- conta municípios de um estado específico
+
+select max(valor) from pedido; -- retorna o maior valor entre todos os pedidos
+select min(valor), max(valor) from pedido; -- retorna o menor e o maior valor no mesmo resultado
+
+select sum(valor) from pedido; -- soma o valor de todos os pedidos
+
+select idcliente, sum(valor) -- agrupa os pedidos por cliente
+from pedido group by idcliente; -- e soma o valor total de cada um
+
+select idcliente, sum(valor) -- mesmo agrupamento acima
+from pedido group by idcliente
+having sum(valor) > 500; -- filtra só os clientes cuja soma passou de R$500
