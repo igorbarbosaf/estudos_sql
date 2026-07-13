@@ -502,3 +502,26 @@ from pedido group by idcliente; -- e soma o valor total de cada um
 select idcliente, sum(valor) -- mesmo agrupamento acima
 from pedido group by idcliente
 having sum(valor) > 500; -- filtra só os clientes cuja soma passou de R$500
+
+-- LEFT OUTER JOIN
+-- retorna todos os clientes, mesmo os que não têm profissão cadastrada
+-- onde não houver profissão, aparece null no lugar
+select
+	cln.nome as cliente,   -- apelido "cln" para a tabela cliente
+	prf.nome as profissao  -- apelido "prf" para a tabela profissao
+from
+	cliente as cln         -- tabela principal (todos os registros aparecem)
+left outer join
+	profissao as prf on cln.idprofissao = prf.idprofissao; -- condição do relacionamento entre as tabelas
+
+
+-- INNER JOIN
+-- retorna somente os clientes que têm profissão cadastrada
+-- clientes sem profissão são ignorados no resultado
+select
+	cln.nome as cliente,
+	prf.nome as profissao
+from
+	cliente as cln         -- tabela principal
+inner join
+	profissao as prf on cln.idprofissao = prf.idprofissao; -- só traz onde existe correspondência nas duas tabelas
