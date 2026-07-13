@@ -1,7 +1,7 @@
 -- Exercícios – funções agregadas
 
 -- 1. A média dos valores de vendas dos vendedores que venderam mais que R$ 200,00.
-select idvendedor, round(avg(valor), 2) as media_valor from pedido group by idvendedor having avg(valor) > 200;
+select idvendedor, round(avg(valor), 2) as media_valor from pedido group by idvendedor having avg(valor) > 300;
 
 -- 2. Os vendedores que venderam mais que R$ 1500,00.
 select idvendedor, sum(valor) from pedido group by idvendedor having sum(valor) > 1500;
@@ -15,9 +15,10 @@ select count(*) from municipio;
 
 -- 5. A quantidade de municípios que são do Paraná ou de Santa Catarina.
 select * from uf;
-select count(idmunicipio) from municipio where iduf = 2 or iduf = 1;
+select count(idmunicipio) from municipio where iduf = 1 or iduf = 2;
 
 -- 6. A quantidade de municípios por estado.
+select * from uf;
 select iduf, count(idmunicipio) from municipio group by iduf;
 
 -- 7. A quantidade de clientes que informaram o logradouro.
@@ -74,7 +75,7 @@ select data_pedido, sum(valor) from pedido group by data_pedido;
 select idcliente, idvendedor, idtransportadora, sum(valor) from pedido group by idcliente, idvendedor, idtransportadora;
 
 -- 23. O somatório do valor do pedido que esteja entre 01/04/2008 e 10/12/2009 e que seja maior que R$ 200,00.
-select sum(valor) from pedido where data_pedido between '2008-04-01' and '2009-12-10' having sum(valor) > 200;
+select sum(valor) from pedido where data_pedido between '2008-04-01' and '2009-12-10' and valor > 200;
 
 -- 24. A média do valor do pedido do vendedor André.
 select * from vendedor;
@@ -102,17 +103,17 @@ select count(*) as quantidade_pedido from pedido where valor > 1000;
 
 -- 31. A quantidade de microcomputadores vendida.
 select * from produto;
-select count(*) as quantidade_vendida from pedido_produto where idproduto = 1;
+select sum(quantidade) as quantidade_vendida from pedido_produto where idproduto = 1;
 
 -- 32. A quantidade de produtos vendida agrupado por produto.
-select idproduto, count(*) as quantidade_vendida from pedido_produto group by idproduto;
+select idproduto, sum(quantidade) as quantidade_vendida from pedido_produto group by idproduto;
 
 -- 33. O somatório do valor dos produtos dos pedidos, agrupado por pedido.
 select * from pedido_produto;
-select idpedido, sum(quantidade * valor_unitario) as vaor_total from pedido_produto group by idpedido;
+select idpedido, sum(valor_unitario) from pedido_produto group by idpedido;
 
 -- 34. A quantidade de produtos agrupados por pedido.
-select idpedido, count(*) as quantidade_total from pedido_produto group by idpedido;
+select idpedido, sum(quantidade) from pedido_produto group by idpedido;
 
 -- 35. O somatório dos valores unitários de todos os produtos.
 select sum(valor_unitario) as valor_total from pedido_produto;
@@ -131,4 +132,4 @@ select min(valor_unitario) as menor_valor from pedido_produto;
 select idpedido, sum(quantidade) as quantidade_total from pedido_produto group by idpedido;
 
 -- 40. O somatório da quantidade de todos os produtos do pedido.
-select sum(quantidade) from pedido_produto;
+select sum(valor_unitario) from pedido_produto;
