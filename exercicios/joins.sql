@@ -7,20 +7,25 @@ select
 	nac.nome as nacionalidade,
 	cln.logradouro as logradouro,
 	cln.numero as numero,
+	cmp.nome as complemento,
 	brr.nome as bairro,
 	mun.nome as municipio,
-	ufd.nome as uf
+	uf.nome as estado,
+	uf.sigla as siglas
 from
 	cliente as cln
-inner join
+left outer join
 	profissao as prf on cln.idprofissao = prf.idprofissao
-inner join
+left outer join
 	nacionalidade as nac on cln.idnacionalidade = nac.idnacionalidade
-inner join
+left outer join
+	complemento as cmp on cln.idcomplemento = cmp.idcomplemento
+left outer join
 	bairro as brr on cln.idbairro = brr.idbairro
-inner join
+left outer join
 	municipio as mun on cln.idmunicipio = mun.idmunicipio
-inner join uf as ufd on mun.iduf = ufd.iduf;
+left outer join
+	uf on mun.iduf = uf.iduf;
 
 --2. O nome do produto, o valor e o nome do fornecedor.
 select * from produto;
@@ -29,8 +34,9 @@ select * from fornecedor;
 
 select
 	pdt.nome as produto,
-	frn.nome as fornecedor,
-	pdt.valor as valor
+	pdt.valor as valor,
+	frn.nome as fornecedor
+
 from
 	produto as pdt
 inner join
@@ -62,7 +68,7 @@ from
 	pedido as pdd
 inner join
 	cliente as cln on pdd.idcliente = cln.idcliente
-inner join
+left outer join
 	transportadora as tra on pdd.idtransportadora = tra.idtransportadora
 inner join
 	vendedor as vdd on pdd.idvendedor = vdd.idvendedor;
@@ -87,9 +93,9 @@ select
 	cln.nome as cliente,
 	pdd.data_pedido as data_pedido
 from
-	pedido as pdd
+	cliente as cln
 inner join
-	cliente as cln on pdd.idcliente = cln.idcliente
+	pedido as pdd on pdd.idcliente = cln.idcliente
 order by
 	cliente;
 	
@@ -110,27 +116,27 @@ select * from bairro;
 select * from cliente;
 
 select
-	brr.nome as bairro,
+	mun.nome as municipio,
 	count(cln.idcliente) as quantidade
 from
 	cliente as cln
 left outer join
-	bairro as brr on brr.idbairro = cln.idbairro
+	municipio as mun on cln.idmunicipio = mun.idmunicipio
 group by
-	brr.nome;
+	mun.nome;
 
 --9. O nome do fornecedor e a quantidade de produtos de cada fornecedor.
 select * from produto;
 
 select
-	fcd.nome as fornecedor,
+	frn.nome as fornecedor,
 	count(prd.idproduto) as quantidade_produtos
 from
 	produto as prd
 inner join
-	fornecedor as fcd on prd.idfornecedor = fcd.idfornecedor
+	fornecedor as frn on prd.idfornecedor = frn.idfornecedor
 group by
-	fcd.nome;
+	frn.nome;
 
 --10.O nome do cliente e o somatório do valor do pedido (agrupado por cliente).
 select * from pedido;
@@ -196,10 +202,10 @@ group by
 select * from pedido_produto;
 select
 	pdd.data_pedido as data_pedido,
-	sum(pdpd.quantidade * pdpd.valor_unitario) as soma_do_valores
+	sum(pdpd.valor_unitario) as total
 from
 	pedido_produto as pdpd
-inner join
+left outer join
 	pedido as pdd on pdpd.idpedido = pdd.idpedido
 group by
 	pdd.data_pedido;

@@ -525,3 +525,42 @@ from
 	cliente as cln         -- tabela principal
 inner join
 	profissao as prf on cln.idprofissao = prf.idprofissao; -- só traz onde existe correspondência nas duas tabelas
+
+select * from pedido;
+
+select
+	data_pedido,
+	extract(day from data_pedido),    -- extrai só o dia: 1, 2, 5...
+	extract(month from data_pedido),  -- extrai só o mês: 4 (abril)
+	extract(year from data_pedido)    -- extrai só o ano: 2008
+from
+	pedido;
+
+select
+	nome,
+	substring(nome from 1 for 5),  -- pega 5 caracteres a partir da posição 1: 'André' → 'André'
+	substring(nome, 2)             -- pega tudo a partir do 2º caractere: 'André' → 'ndré'
+from
+	cliente;
+
+select
+	nome,
+	upper(nome)  -- converte o nome para maiúsculo: 'André' → 'ANDRÉ'
+from
+	cliente;
+
+select
+	nome,
+	cpf,
+	coalesce(cpf, 'Não informado')  -- se cpf for null, mostra 'Não informado' no lugar
+from
+	cliente;
+
+select
+	case sigla                          -- avalia o valor da coluna sigla
+		when 'PR' then 'Paraná'         -- se for 'PR' mostra 'Paraná'
+		when 'SC' then 'Santa Catarina' -- se for 'SC' mostra 'Santa Catarina'
+	else 'Outros'                       -- qualquer outro valor mostra 'Outros'
+	end as uf                           -- nomeia a coluna calculada como 'uf'
+from
+	uf;
