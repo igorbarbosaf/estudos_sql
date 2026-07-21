@@ -564,3 +564,36 @@ select
 	end as uf                           -- nomeia a coluna calculada como 'uf'
 from
 	uf;
+
+-- SUBCONSULTA NO WHERE
+-- seleciona pedidos com valor acima da média geral
+select
+	data_pedido,
+	valor
+from
+	pedido
+where
+	valor > (select avg(valor) from pedido); -- subconsulta calcula a média dentro do where
+	                                          -- o resultado é usado como filtro da consulta principal
+
+
+-- SUBCONSULTA NO SELECT (correlacionada)
+-- para cada pedido, calcula a soma das quantidades dos seus produtos
+select
+	pdd.data_pedido,
+	pdd.valor,
+	(select sum(quantidade)           -- subconsulta roda uma vez para cada linha do pedido
+	 from pedido_produto as pdp
+	 where pdp.idpedido = pdd.idpedido) as total -- liga a subconsulta com o pedido atual
+from
+	pedido as pdd;
+
+select * from pedido_produto;
+
+-- SUBCONSULTA NO UPDATE
+-- reajusta em 5% somente os pedidos acima da média
+select * from pedido;
+update pedido
+	set valor = valor + ((valor * 5) / 100)  -- aplica reajuste de 5% no valor
+where
+	valor > (select round(avg(valor), 2) from pedido); -- subconsulta calcula a média para filtrar
