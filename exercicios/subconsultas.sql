@@ -49,10 +49,38 @@ where
 select * from transportadora;
 	
 --5. O nome do cliente e o município dos clientes que estão localizados no mesmo município de qualquer uma das transportadoras.
+select
+	nome,
+	idmunicipio
+from
+	cliente
+where
+	idmunicipio in (select idmunicipio from transportadora);
 
---6. Atualizar o valor do pedido em 5% para os pedidos que o somatório do valor total dos produtos daquele pedido seja maior que a média do valor total
+select distinct idmunicipio from cliente;
+	
+--6. Atualizar o valor do pedido em 5% para os pedidos que o somatório do 
+--valor total dos produtos daquele pedido seja maior que a média do 
+--valor total de todos os produtos de todos os pedidos.
+update
+	pedido 
+set 
+	valor = valor + ((valor * 5) / 100)
+where 
+	(select sum(pdp.valor_unitario) from pedido_produto pdp where pdp.idpedido = pedido.idpedido) > (select round(avg(valor_unitario), 2) from pedido_produto);
 
---de todos os produtos de todos os pedidos.
+
+select
+	pdd.idpedido,
+	(select sum(valor_unitario) from pedido_produto pdp where pdp.idpedido = pdd.idpedido)
+from
+	pedido pdd
+
+	
+(select round(avg(valor_unitario), 2) from pedido_produto);
+
+select * from pedido_produto;
+select * from pedido;
 
 --7. O nome do cliente e a quantidade de pedidos feitos pelo cliente.
 
