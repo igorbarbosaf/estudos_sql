@@ -597,3 +597,26 @@ update pedido
 	set valor = valor + ((valor * 5) / 100)  -- aplica reajuste de 5% no valor
 where
 	valor > (select round(avg(valor), 2) from pedido); -- subconsulta calcula a média para filtrar
+
+
+-- remove a view se ela já existir (evita erro ao recriar)
+drop view cliente_profissao;
+
+-- cria a view com o nome cliente_profissao
+-- a view salva a query, não os dados — sempre reflete os dados atuais
+create view cliente_profissao as
+select
+	cln.nome as cliente,  -- coluna nome da tabela cliente
+	cln.cpf,              -- cpf do cliente
+	prf.nome as profissao -- coluna nome da tabela profissao
+from
+	cliente cln
+left outer join
+	profissao prf on cln.idprofissao = prf.idprofissao; -- traz todos os clientes, mesmo sem profissão
+
+-- consulta a view como se fosse uma tabela normal
+-- filtra só os clientes que são professores
+select cliente from cliente_profissao where profissao = 'Professor';
+
+-- mostra todos os dados da view
+select * from cliente_profissao;

@@ -83,5 +83,19 @@ select * from pedido_produto;
 select * from pedido;
 
 --7. O nome do cliente e a quantidade de pedidos feitos pelo cliente.
+select
+	cln.nome,
+	(select count(idpedido) from pedido pdd where pdd.idcliente = cln.idcliente) as total_pedidos
+from
+	cliente cln;
 
 --8. Para revisar, refaça o exercício anterior (número 07) utilizando group by e mostrando somente os clientes que fizeram pelo menos um pedido.
+select
+	cln.nome as cliente,
+	count(pdd.idpedido) as total
+from
+	pedido pdd
+left outer join
+	cliente cln on pdd.idcliente = cln.idcliente
+group by
+	cln.nome;
