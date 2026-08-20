@@ -514,6 +514,7 @@ from
 left outer join
 	profissao as prf on cln.idprofissao = prf.idprofissao; -- condição do relacionamento entre as tabelas
 
+---------------------------------------------------------------------------------------------------------------
 
 -- INNER JOIN
 -- retorna somente os clientes que têm profissão cadastrada
@@ -575,7 +576,7 @@ from
 where
 	valor > (select avg(valor) from pedido); -- subconsulta calcula a média dentro do where
 	                                          -- o resultado é usado como filtro da consulta principal
-
+---------------------------------------------------------------------------------------------------------------
 
 -- SUBCONSULTA NO SELECT (correlacionada)
 -- para cada pedido, calcula a soma das quantidades dos seus produtos
@@ -598,6 +599,7 @@ update pedido
 where
 	valor > (select round(avg(valor), 2) from pedido); -- subconsulta calcula a média para filtrar
 
+---------------------------------------------------------------------------------------------------------------
 
 -- remove a view se ela já existir (evita erro ao recriar)
 drop view cliente_profissao;
@@ -620,3 +622,42 @@ select cliente from cliente_profissao where profissao = 'Professor';
 
 -- mostra todos os dados da view
 select * from cliente_profissao;
+
+---------------------------------------------------------------------------------------------------------------
+-- CAMPOS AUTOINCREMENTO
+
+-- jeito 1: serial — cria a sequence automaticamente
+create table exemplo (
+	idexemplo serial not null,       -- serial gera o id automaticamente a cada insert
+	nome varchar(50) not null,
+	constraint pk_exemplo_idexemplo primary key (idexemplo)
+);
+
+-- no insert o id é omitido — o banco preenche sozinho
+insert into exemplo (nome) values ('Exemplo 1');
+insert into exemplo (nome) values ('Exemplo 2');
+insert into exemplo (nome) values ('Exemplo 3');
+insert into exemplo (nome) values ('Exemplo 4');
+insert into exemplo (nome) values ('Exemplo 5');
+
+select * from exemplo;
+
+-- jeito 2: sequence manual — para tabelas que já existem com dados
+
+-- passo 1: descobre o maior id atual para não conflitar com os dados existentes
+select max(idbairro) + 1 from bairro;
+
+-- passo 2: cria a sequence começando do valor correto
+create sequence bairro_id_seq minvalue 5;
+
+-- passo 3: define a sequence como valor padrão da coluna
+alter table bairro alter idbairro set default nextval('bairro_id_seq');
+
+-- passo 4: vincula a sequence à coluna (ao deletar a tabela, deleta a sequence também)
+alter sequence bairro_id_seq owned by bairro.idbairro;
+
+-- agora o insert funciona sem informar o id
+insert into bairro (nome) values ('Teste 1');
+insert into bairro (nome) values ('Teste 2');
+
+select * from bairro;

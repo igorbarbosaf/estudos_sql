@@ -3,9 +3,9 @@
 --gênero (mostrar “Masculino” ou “Feminino”), o logradouro, o número e as observações dos clientes.
 select * from complemento;
 
-drop view cliente_complento;
+drop view cliente_dados;
 
-create view cliente_complento as
+create view cliente_dados as
 select
 	cln.nome as cliente,
 	pro.nome as profissao,
@@ -17,7 +17,7 @@ select
 	cln.cpf,
 	cln.rg,
 	cln.data_nascimento,
-	case genero
+	case cln.genero
 		when 'M' then 'Masculino'
 		when 'F' then 'Feminino'
 	end as genero,
@@ -39,9 +39,13 @@ left outer join
 left outer join
 	bairro brr on cln.idbairro = brr.idbairro;
 
+select * from cliente_dados;
+
 --2. O nome do município e o nome e a sigla da unidade da federação.
 select * from municipio;
 select * from uf;
+
+drop view municipio_uf;
 
 create view municipio_uf as
 select
@@ -52,6 +56,8 @@ from
 	municipio mun
 left outer join
 	uf on mun.iduf = uf.iduf;
+
+select * from municipio_uf;
 
 --3. O nome do produto, o valor e o nome do fornecedor dos produtos.
 drop view cliente_profissao;
@@ -69,17 +75,20 @@ from
 left outer join
 	fornecedor fnc on pdt.idfornecedor = fnc.idfornecedor;
 
+select * from produto_fornecedor;
+
 --4. O nome da transportadora, o logradouro, o número, o nome da unidade de federação e a sigla da unidade de federação das transportadoras.
 select * from transportadora;
 select * from municipio;
 select * from uf;
 
-create view transportadora_municipio_sigla as
+drop view transportadora_uf;
+
+create view transportadora_uf as
 select
 	tpt.nome as transportadora,
 	tpt.logradouro,
 	tpt.numero,
-	mun.nome as municipio,
 	uf.nome as uf,
 	uf.sigla
 from
@@ -89,6 +98,7 @@ left outer join
 left outer join
 	uf on mun.iduf = uf.iduf;
 	
+select * from transportadora_uf where sigla = 'PR';
 
 --5. A data do pedido, o valor, o nome da transportadora, o nome do cliente e o nome do vendedor dos pedidos.
 select * from pedido;
@@ -96,7 +106,9 @@ select * from transportadora;
 select * from cliente;
 select * from vendedor;
 
-create view pedido_transportadora_cliente_vendedor as
+drop view dados_pedido;
+
+create view dados_pedido as
 select
 	pdd.data_pedido,
 	pdd.valor,
@@ -112,12 +124,15 @@ left outer join
 left outer join
 	vendedor vdd on pdd.idvendedor = vdd.idvendedor;
 
+select * from dados_pedido;
 
 --6. O nome do produto, a quantidade, o valor unitário e o valor total dos produtos do pedido.
 select * from pedido_produto;
 select * from produto;
 
-create view pedido_produto_total as
+drop view produto_pedido_total;
+
+create view produto_pedido_total as
 select
 	pdt.nome as produto,
 	pdpd.quantidade,
@@ -128,4 +143,4 @@ from
 left outer join
 	produto pdt on pdpd.idproduto = pdt.idproduto;
 
-
+select * from produto_pedido_total;
