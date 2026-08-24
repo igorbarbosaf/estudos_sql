@@ -1,5 +1,6 @@
 --1. Criar sequências para todas as outras tabelas da base de dados
 select * from cliente;
+
 --a. Cliente
 select max(idcliente) + 1 from cliente;
 
