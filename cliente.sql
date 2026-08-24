@@ -661,3 +661,37 @@ insert into bairro (nome) values ('Teste 1');
 insert into bairro (nome) values ('Teste 2');
 
 select * from bairro;
+
+---------------------------------------------------------------------------------------------------------------
+-- CAMPOS DEFAULT
+-- define um valor automático para a coluna quando não for informado no insert
+
+-- define a data atual como padrão para data_pedido
+-- se não informar a data no insert, o banco coloca a data de hoje automaticamente
+alter table pedido alter column data_pedido set default current_date;
+
+-- define 0 como valor padrão para valor
+-- se não informar o valor no insert, o banco coloca 0 automaticamente
+alter table pedido alter column valor set default 0;
+
+-- insert sem data e sem valor — o banco preenche com os defaults
+-- data_pedido = data de hoje, valor = 0
+insert into pedido (idcliente, idvendedor) values (1, 1);
+
+-- insert informando tudo — o default é ignorado, usa o que foi informado
+insert into pedido (idcliente, idvendedor, data_pedido, valor)
+values (1, 1, '2022-10-10', 234);
+
+select * from pedido;
+
+---------------------------------------------------------------------------------------------------------------
+-- ÍNDICES
+-- melhora a performance das consultas em colunas muito pesquisadas
+-- funciona como o índice de um livro — em vez de ler página por página,
+-- vai direto onde está a informação
+
+-- cria um índice na coluna nome da tabela cliente
+-- agora buscas por nome ficam muito mais rápidas
+create index idx_cln_nome on cliente (nome);
+-- toda vez que fizer: where nome = 'Ana' ou order by nome
+-- o banco usa o índice em vez de varrer a tabela inteira
