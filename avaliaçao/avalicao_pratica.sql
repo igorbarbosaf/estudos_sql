@@ -229,3 +229,134 @@ insert into emprestimo_livro (idemprestimo, idlivro) values (4, 12);
 
 select * from emprestimo_livro;
 
+--18. Crie os seguintes índices: 
+--Emprestimo - Emprestimo 
+--Emprestimo - Devolução
+
+create index idx_emp_data_emprestimo on emprestimo (data_emprestimo);
+create index idx_emp_data_devolucao on emprestimo (data_devolucao);
+
+select * from emprestimo where data_emprestimo = '2012-05-10';
+
+-- CONSULTAS SIMPLES 
+--19. O nome dos autores em ordem alfabética.
+select nome from autor order by nome asc;
+
+--20. O nome dos alunos que começam com a letra P.
+select nome from aluno where nome like 'P%';
+
+--21. O nome dos livros da categoria Banco de Dados ou Java.
+select
+	lvr.nome as livros
+from
+	livro lvr
+inner join
+	categoria ctg on lvr.idcategoria = ctg.idcategoria
+where
+	ctg.nome = 'Banco de Dados' or ctg.nome = 'Java';
+	
+--22. O nome dos livros da editora Bookman.
+select * from editora;
+select * from livro;
+
+select
+	lvr.nome
+from
+	livro lvr
+inner join
+	editora edt on edt.ideditora = lvr.ideditora
+where
+	edt.nome = 'Bookman';
+
+--23. Os empréstimos realizados entre 05/05/2012 e 10/05/2012.
+select * from emprestimo where data_emprestimo between '2012-05-05' and '2012-05-10';
+
+--24. Os empréstimos que não foram feitos entre 05/05/2012 e 10/05/2012
+select * from emprestimo where data_emprestimo not between '2012-05-05' and '2012-05-10';
+
+--25. Os empréstimos que os livros já foram devolvidos.
+select * from emprestimo where devolvido = 'S';
+
+-- CONSULTAS COM AGRUPAMENTO SIMPLES
+--26. A quantidade de livros.
+select count(*) from livro;
+
+--27. O somatório do valor dos empréstimos.
+select sum(valor) from emprestimo;
+
+--28. A média do valor dos empréstimos.
+select round(avg(valor), 2) from emprestimo;
+
+--29. O maior valor dos empréstimos.
+select max(valor) from emprestimo;
+
+--30. O menor valor dos empréstimos.
+select min(valor) from emprestimo;
+
+--31. O somatório do valor do empréstimo que estão entre 05/05/2012 e 10/05/2012.
+select sum(valor) from emprestimo where data_emprestimo between '2012-05-05' and '2012-05-10';
+
+--32. A quantidade de empréstimos que estão entre 01/05/2012 e 05/05/2012.
+select count(*) from emprestimo where data_emprestimo between '2012-05-01' and '2012-05-05';
+
+-- CONSULTAS COM JOIN 
+--33. O nome do livro, a categoria e a editora (LIVRO) – fazer uma view
+create view livro_categoria_editora as
+select
+	lvr.nome as livro,
+	ctg.nome as categoria,
+	edt.nome as editora
+from
+	livro lvr
+left outer join
+	categoria ctg on lvr.idcategoria = ctg.idcategoria
+left outer join
+	editora edt on lvr.ideditora = edt.ideditora;
+
+select * from livro_categoria_editora;
+
+--34. O nome do livro e o nome do autor (LIVRO_AUTOR) – fazer uma view.
+select * from livro_autor;
+create view vw_livro_autor as
+select
+	lvr.nome as livro,
+	aut.nome as autor
+from
+	livro_autor lvraut
+left outer join
+	livro lvr on lvraut.idlivro = lvr.idlivro
+left outer join
+	autor aut on lvraut.idautor = aut.idautor
+
+select * from vw_livro_autor;
+
+--35. O nome dos livros do autor Ian Graham (LIVRO_AUTOR).
+select
+	lvr.nome as livro
+from
+	livro_autor lvat
+inner join
+	livro lvr on lvat.idlivro = lvr.idlivro
+inner join
+	autor aut on lvat.idautor = aut.idautor
+where
+	aut.nome = 'Ian Graham';
+
+--36. O nome do aluno, a data do empréstimo e a data de devolução (EMPRESTIMO).
+select
+	alu.nome as aluno,
+	emp.data_emprestimo,
+	emp.data_devolucao
+from
+	emprestimo emp
+inner join
+	aluno alu on emp.idaluno = alu.idaluno;
+
+--37. O nome de todos os livros que foram emprestados (EMPRESTIMO_LIVRO).
+select
+	lvr.nome
+from
+	emprestimo_livro emlv
+inner join
+	livro lvr on emlv.idlivro = lvr.idlivro;
+
