@@ -360,3 +360,60 @@ from
 inner join
 	livro lvr on emlv.idlivro = lvr.idlivro;
 
+-- CONSULTAS COM AGRUPAMENTO + JOIN 
+--38. O nome da editora e a quantidade de livros de cada editora (LIVRO). 
+select * from editora;
+select
+	edt.nome as editora,
+	count(lvr.nome) as quantidade_de_livros
+from
+	editora edt
+inner join
+	livro lvr on lvr.ideditora = edt.ideditora
+group by
+	edt.nome;
+
+	
+--39. O nome da categoria e a quantidade de livros de cada categoria (LIVRO). 
+select * from categoria;
+select
+	ctg.nome as categoria,
+	count(lvr.nome) as quantidade_de_livro
+from
+	categoria ctg
+inner join
+	livro lvr on lvr.idcategoria = ctg.idcategoria
+group by
+	ctg.nome;
+
+--40. O nome do autor e a quantidade de livros de cada autor (LIVRO_AUTOR).
+select * from livro_autor;
+select
+	aut.nome as autor,
+	count(lvau.idlivro) as quantidade_de_livro
+from
+	autor aut
+inner join
+	livro_autor lvau on lvau.idautor = aut.idautor
+group by
+	aut.nome;
+
+--41. O nome do aluno e a quantidade de empréstimo de cada aluno (EMPRESTIMO_LIVRO). 
+select * from emprestimo;
+select
+	alu.nome as aluno,
+	emp.idaluno,
+	count(emlv.idemprestimo) as emprestimos
+from
+	aluno alu
+inner join
+	emprestimo emp on alu.idaluno = emp.idaluno
+inner join
+	emprestimo_livro emlv on emlv.idemprestimo = emp.idemprestimo
+group by
+	alu.nome, emp.idaluno;
+	
+--42. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno (EMPRESTIMO). 
+--43. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno 
+--somente daqueles que o somatório for maior do que 7,00 (EMPRESTIMO).
+
