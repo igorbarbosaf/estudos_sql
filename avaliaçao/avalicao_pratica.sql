@@ -413,7 +413,92 @@ inner join
 group by
 	alu.nome, emp.idaluno;
 	
---42. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno (EMPRESTIMO). 
+--42. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno (EMPRESTIMO).
+select * from emprestimo;
+select
+	alu.nome as alunos,
+	sum(emp.valor) as valor_total
+from
+	emprestimo emp
+inner join
+	aluno alu on emp.idaluno = alu.idaluno
+group by
+	alu.nome;
+	
+
 --43. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno 
 --somente daqueles que o somatório for maior do que 7,00 (EMPRESTIMO).
+select * from emprestimo;
+select
+	alu.nome as aluno,
+	sum(emp.valor) as valor_total
+from
+	emprestimo emp
+inner join
+	aluno alu on emp.idaluno = alu.idaluno
+group by
+	alu.nome
+having sum(emp.valor) > 7;
+
+-- CONSULTAS COMANDOS DIVERSOS 
+--44. O nome de todos os alunos em ordem decrescente e em letra maiúscula. 
+select upper(nome) from aluno order by upper(nome) desc;
+
+--45. Os empréstimos que foram feitos no mês 04 de 2012. 
+select * from emprestimo;
+select * from emprestimo 
+where extract(month from data_emprestimo) = 4 and extract(year from data_emprestimo) = 2012;
+
+--46. Todos os campos do empréstimo. Caso já tenha sido devolvido,
+--mostrar a mensagem “Devolução completa”, senão “Em atraso”. 
+select *,
+    case
+        when devolvido = 'S' then 'Devolução completa'
+        else 'Em atraso'
+    end as status_devolucao
+from emprestimo;
+
+--47. Somente o caractere 5 até o caractere 10 do nome dos autores.
+select substring(nome, 5, 6) from autor;
+
+--48. O valor do empréstimo e somente o mês da data de empréstimo. Escreva “Janeiro”, “Fevereiro”, etc 
+select
+	valor,
+	to_char(data_emprestimo, 'Month') as mes
+from
+	emprestimo;
+
+-- SUBCONSULTAS 
+--49. A data do empréstimo e o valor dos empréstimos que o valor seja maior que a média de todos os empréstimos.
+select
+	data_emprestimo,
+	valor
+from
+	emprestimo
+where valor > (select round(avg(valor), 2) from emprestimo);
+
+select valor from emprestimo;
+
+--50. A data do empréstimo e o valor dos empréstimos que possuem mais de um livro. 
+select
+	emp.data_emprestimo,
+	emp.valor
+from
+	emprestimo emp
+where 
+	emp.idemprestimo in (
+	select elv.idemprestimo from emprestimo_livro elv group by elv.idemprestimo having count(*) > 1
+);
+
+select elv.idemprestimo from emprestimo_livro elv group by elv.idemprestimo having count(*) > 1
+
+--51. A data do empréstimo e o valor dos empréstimos que o valor seja menor que a soma de todos os empréstimos. 
+select
+	data_emprestimo,
+	valor
+from
+	emprestimo
+where valor < (select sum(valor) from emprestimo);
+
+select sum(valor) from emprestimo;
 
