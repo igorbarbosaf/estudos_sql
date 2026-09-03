@@ -20,7 +20,7 @@ insert into editora (nome) values ('Brasport');
 
 select * from editora;
 
-4. Crie uma tabela chamada CATEGORIA: 
+--4. Crie uma tabela chamada CATEGORIA: 
 
 create table categoria (
 	idcategoria serial primary key,
@@ -43,7 +43,7 @@ insert into categoria (nome) values ('PHP');
 
 select * from categoria;
 
-Crie uma tabela chamada AUTOR: 
+--6. Crie uma tabela chamada AUTOR: 
 
 create table autor (
 	idautor serial primary key,
@@ -80,7 +80,7 @@ update autor
 set nome = 'Pablo Dalloglio'
 where idautor = 10
 
-8. Crie uma tabela chamada LIVRO:
+--8. Crie uma tabela chamada LIVRO:
 
 create table livro (
 	idlivro serial primary key,
@@ -123,6 +123,7 @@ create table livro_autor (
 	idlivro integer not null,
 	idautor integer not null,
 
+	constraint pk.ltr.idlivroautor primary key (idlivro, idautor),
 	constraint fk_livro foreign key (idlivro) references livro(idlivro),
 	constraint fk_autor foreign key (idautor) references autor(idautor)
 );
@@ -148,7 +149,9 @@ select * from livro_autor;
 
 create table aluno (
 	idaluno serial primary key,
-	nome varchar(50) not null
+	nome varchar(50) not null,
+
+	constraint un_alu_nome unique (nome);
 );
 
 --13. Insira os dados abaixo na tabela ALUNO. 
@@ -206,6 +209,7 @@ create table emprestimo_livro (
 	idemprestimo integer not null,
 	idlivro integer not null,
 
+	constraint pk_elv_idemprestimolivro primary key (idemprestimo, idlivro),
 	constraint fk_emprestimo foreign key (idemprestimo) references emprestimo(idemprestimo),
 	constraint fk_livro foreign key (idlivro) references livro(idlivro)
 );
@@ -354,7 +358,7 @@ inner join
 
 --37. O nome de todos os livros que foram emprestados (EMPRESTIMO_LIVRO).
 select
-	lvr.nome
+	distinct (lvr.nome) as livro
 from
 	emprestimo_livro emlv
 inner join
@@ -365,7 +369,7 @@ inner join
 select * from editora;
 select
 	edt.nome as editora,
-	count(lvr.nome) as quantidade_de_livros
+	count(lvr.idlivro) as quantidade
 from
 	editora edt
 inner join
@@ -378,7 +382,7 @@ group by
 select * from categoria;
 select
 	ctg.nome as categoria,
-	count(lvr.nome) as quantidade_de_livro
+	count(lvr.id livro) as quantidade
 from
 	categoria ctg
 inner join
@@ -401,17 +405,14 @@ group by
 --41. O nome do aluno e a quantidade de empréstimo de cada aluno (EMPRESTIMO_LIVRO). 
 select * from emprestimo;
 select
-	alu.nome as aluno,
-	emp.idaluno,
-	count(emlv.idemprestimo) as emprestimos
+	alu.nome as alunos,
+	count(emp.idemprestimo) as quantidade
 from
-	aluno alu
+	emprestimo emp
 inner join
-	emprestimo emp on alu.idaluno = emp.idaluno
-inner join
-	emprestimo_livro emlv on emlv.idemprestimo = emp.idemprestimo
+	aluno alu on emp.idaluno = alu.idaluno
 group by
-	alu.nome, emp.idaluno;
+	alu.nome;
 	
 --42. O nome do aluno e o somatório do valor total dos empréstimos de cada aluno (EMPRESTIMO).
 select * from emprestimo;
@@ -452,19 +453,26 @@ where extract(month from data_emprestimo) = 4 and extract(year from data_emprest
 --46. Todos os campos do empréstimo. Caso já tenha sido devolvido,
 --mostrar a mensagem “Devolução completa”, senão “Em atraso”. 
 select *,
-    case
-        when devolvido = 'S' then 'Devolução completa'
-        else 'Em atraso'
+    case devolvido
+        when 'S' then 'Devolução completa'
+        when 'N' then 'Em atraso'
     end as status_devolucao
 from emprestimo;
 
 --47. Somente o caractere 5 até o caractere 10 do nome dos autores.
-select substring(nome, 5, 6) from autor;
+select substring(nome, from 5 for 10) from autor;
 
 --48. O valor do empréstimo e somente o mês da data de empréstimo. Escreva “Janeiro”, “Fevereiro”, etc 
 select
 	valor,
-	to_char(data_emprestimo, 'Month') as mes
+	data_emprestimo,
+	case extract(month from data_emprestimo)
+		when 1 then 'Janeiro'
+		when 2 then 'Fevereiro'
+		when 3 then 'Março'
+		when 4 then 'Abril'
+		when 5 then 'Maio'
+	end as mes
 from
 	emprestimo;
 
@@ -475,23 +483,24 @@ select
 	valor
 from
 	emprestimo
-where valor > (select round(avg(valor), 2) from emprestimo);
+where 
+	valor > (select round(avg(valor), 2) from emprestimo);
 
 select valor from emprestimo;
 
 --50. A data do empréstimo e o valor dos empréstimos que possuem mais de um livro. 
 select
 	emp.data_emprestimo,
-	emp.valor
+	emp.valor,
+	(select count(elv.idemprestimo) from emprestimo_livro elv where elv.idemprestimo = emp.idemprestimo) as quantidade_de_livros
 from
 	emprestimo emp
-where 
-	emp.idemprestimo in (
-	select elv.idemprestimo from emprestimo_livro elv group by elv.idemprestimo having count(*) > 1
-);
-
-select elv.idemprestimo from emprestimo_livro elv group by elv.idemprestimo having count(*) > 1
-
+where	
+	(select 
+		count(elv.idemprestimo) 
+	from 
+		emprestimo_livro elv
+	where elv.idemprestimo = emp.idemprestimo) > 1;
 --51. A data do empréstimo e o valor dos empréstimos que o valor seja menor que a soma de todos os empréstimos. 
 select
 	data_emprestimo,
