@@ -695,3 +695,72 @@ select * from pedido;
 create index idx_cln_nome on cliente (nome);
 -- toda vez que fizer: where nome = 'Ana' ou order by nome
 -- o banco usa o índice em vez de varrer a tabela inteira
+
+---------------------------------------------------------------------------------------------------------------
+-- FUNÇÕES
+
+-- testa o concat e round antes de criar a função
+-- formata o valor como moeda: 1300 → R$ 1300.00
+select valor, concat('R$ ', round(cast(valor as numeric), 2)) from pedido;
+
+-- cria a função formata_moeda
+-- recebe um número (valor float) e retorna um texto formatado como moeda (varchar 20)
+create function formata_moeda(valor float) returns varchar(20) language plpgsql as
+$$
+begin
+	-- junta 'R$ ' com o valor arredondado em 2 casas decimais e retorna
+	return concat('R$ ', round(cast(valor as numeric), 2));
+end;
+$$;
+
+-- usa a função na tabela pedido — mostra o valor original e o formatado
+select valor, formata_moeda(valor) from pedido;
+-- 1300 | R$ 1300.00
+-- 500  | R$ 500.00
+
+-- usa a mesma função na tabela produto — reutilização sem reescrever o código
+select valor, formata_moeda(valor) from produto;
+-- 800 | R$ 800.00
+-- 500 | R$ 500.00
+
+
+-- cria a função get_nome_by_id
+-- recebe um idcliente (idc integer) e retorna o nome daquele cliente (varchar 50)
+create function get_nome_by_id(idc integer) returns varchar(50) language plpgsql as
+$$
+declare r varchar(50); -- variável temporária para guardar o nome encontrado
+begin
+	select nome into r  -- busca o nome e guarda na variável r
+	from cliente
+	where idcliente = idc; -- filtra pelo id passado como parâmetro
+	return r; -- retorna o nome encontrado
+end;
+$$;
+
+-- usa a função no select — para cada linha do pedido, busca o nome do cliente pelo id
+select data_pedido, valor, idcliente, get_nome_by_id(idcliente) from pedido;
+-- 2008-04-01 | 1300 | 1 | Manoel
+-- 2008-04-01 | 500  | 1 | Manoel
+-- 2008-04-02 | 300  | 11 | Ana
+
+-- remove a função do banco (mesmo fluxo do drop view)
+drop function get_nome_by_id(integer);
+
+---------------------------------------------------------------------------------------------------------------
+-- PROCEDURE
+-- bloco de código salvo no banco que executa uma ação
+-- diferente da função, não retorna valor — só executa
+
+-- cria a procedure insere_bairro
+-- recebe o nome do bairro como parâmetro (varchar 30)
+create procedure insere_bairro(nome_bairro varchar(30)) language sql as
+$$
+	-- executa o insert usando o valor recebido como parâmetro
+	insert into bairro (nome) values (nome_bairro);
+$$;
+
+-- chama a procedure com call (diferente da função que usa select)
+-- insere o bairro 'Teste procedure' na tabela bairro
+call insere_bairro('Teste procedure');
+
+select * from bairro; -- confirma que o bairro foi inserido
