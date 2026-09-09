@@ -764,3 +764,50 @@ $$;
 call insere_bairro('Teste procedure');
 
 select * from bairro; -- confirma que o bairro foi inserido
+
+---------------------------------------------------------------------------------------------------------------
+-- TRIGGERS
+-- executa uma função automaticamente quando um evento acontece na tabela
+-- ex: toda vez que inserir um bairro, registra automaticamente na auditoria
+
+
+-- tabela de auditoria: guarda o histórico de registros inseridos na tabela bairro
+-- toda vez que um bairro for inserido, uma linha é adicionada aqui automaticamente
+create table bairro_auditoria (
+	idbairro     integer   not null, -- id do bairro que foi inserido
+	data_criacao timestamp not null  -- data e hora exata que foi inserido
+);
+
+
+-- função que o trigger vai chamar automaticamente quando ocorrer o evento
+-- returns trigger: obrigatório para funções usadas em triggers
+create or replace function bairro_log() returns trigger language plpgsql as
+$$
+begin
+	-- new = o novo registro que está sendo inserido na tabela bairro
+	-- new.idbairro = pega o id do bairro que acabou de ser inserido
+	-- current_timestamp = data e hora exata do momento do insert
+	insert into bairro_auditoria (idbairro, data_criacao) values (new.idbairro, current_timestamp);
+	return new; -- obrigatório: retorna o novo registro para confirmar o insert
+end;
+$$;
+
+
+-- cria o trigger que liga o evento à função
+-- after insert on bairro = dispara DEPOIS de um insert na tabela bairro
+-- for each row = executa uma vez para cada linha inserida
+-- execute procedure bairro_log() = chama a função bairro_log automaticamente
+create or replace trigger log_bairro_trigger
+	after insert on bairro
+	for each row
+	execute procedure bairro_log();
+
+
+-- insere três bairros usando a procedure — o trigger dispara automaticamente
+-- para cada insert, o bairro_log() registra o id e a data na bairro_auditoria
+call insere_bairro('Teste 10');
+call insere_bairro('Teste 20');
+call insere_bairro('Teste 30');
+
+select * from bairro;           -- mostra os bairros inseridos
+select * from bairro_auditoria; -- mostra o histórico gerado automaticamente pelo trigger
