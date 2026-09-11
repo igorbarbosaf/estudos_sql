@@ -811,3 +811,44 @@ call insere_bairro('Teste 30');
 
 select * from bairro;           -- mostra os bairros inseridos
 select * from bairro_auditoria; -- mostra o histórico gerado automaticamente pelo trigger
+
+---------------------------------------------------------------------------------------------------------------
+-- DOMÍNIOS
+-- cria tipos personalizados reutilizáveis no banco
+-- em vez de repetir varchar(50) em toda tabela, você usa nome_medio
+
+-- IDs — tipos para colunas de identificação
+create domain idcurso as smallint;  -- id pequeno: até 32.767
+create domain idmedio as integer;   -- id médio: até 2 bilhões
+create domain idlongo as bigint;    -- id grande: até 9 quintilhões
+
+-- Caracteres — tipos para colunas de texto
+create domain siglas    as char(3);      -- texto fixo de 3 caracteres: 'PR', 'SC'
+create domain codigo    as varchar(10);  -- código curto: 'ABC123'
+create domain nome_curto as varchar(15); -- nome curto: 'Ana'
+create domain nome_medio as varchar(50); -- nome médio: 'Cap. Computadores'
+create domain nome_longo as varchar(70); -- nome longo: endereços, descrições
+create domain documento as varchar(15); -- documento: 12345678901
+create domain tipo as char(1); -- tipo: 'F' ou 'J'
+create domain texto as text; -- texto longo: 'Este é um texto longo'
+
+-- Data e hora — tipos para colunas de tempo
+create domain data      as date;       -- só a data: '2008-04-01'
+create domain horas     as time;       -- só a hora: '14:30:00'
+create domain data_hora as timestamp;  -- data e hora: '2008-04-01 14:30:00'
+
+-- Numéricos — tipos para colunas de valores
+create domain moeda       as numeric(10, 2);  -- valores monetários: 1300.00
+create domain float_curto as numeric(6, 2);   -- número pequeno: 999.99
+create domain float_medio as numeric(10, 2);  -- número médio: 99999999.99
+create domain float_longo as numeric(15, 2);  -- número grande: bilhões
+create domain quantiddade as smallint; -- quantidade: 1, 2, 3...
+
+-- aplica o domínio nome_medio na coluna nome da tabela bairro
+-- a coluna passa a usar varchar(50) definido no domínio
+alter table bairro alter column nome type nome_medio;
+
+-- remove a view cliente_dados antes de recriar com os domínios
+drop view cliente_dados;
+
+alter table bairro_auditoria alter column data_criacao type data_hora;
